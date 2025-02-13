@@ -25,9 +25,9 @@ GET /goal/progress -- get the progress detail of the user goal
 
 # Notification for Goal Progress
 
-\*\* If no of user is less :- in the /goal/progress api , if we find user is close to achieving his goal or achieved his goal trigger an email notification
+\*\* If no of user is less and users are active frequently :- in the /goal/progress api , if we find user is close to achieving his goal or achieved his goal trigger an email notification
 
-\*\* If no of user is more:-
+\*\* If no of user is more and users are less active:-
 
 # Cron Job
 
