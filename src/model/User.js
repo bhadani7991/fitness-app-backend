@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 /**
  * User Collection to store the individual user related detail.
@@ -46,6 +48,23 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.methods.getJWT = async function (params) {
+  const user = this;
+  const token = await jwt.sign({ _id: user._id }, process.env.SECRET_KEY, {
+    expiresIn: "7d",
+  });
+  return token;
+};
+
+userSchema.methods.validatePassword = async function (passwordEnteredByUser) {
+  const user = this;
+  const isPasswordValid = await bcrypt.compare(
+    passwordEnteredByUser,
+    user.password
+  );
+  return isPasswordValid;
+};
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;

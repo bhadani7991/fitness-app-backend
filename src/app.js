@@ -2,9 +2,12 @@ const express = require("express");
 const app = express();
 const connectDB = require("./config/database");
 const logger = require("./config/logger");
+const cookieParser = require("cookie-parser");
 require("dotenv").config(); // Load environment variables from .env
 
+// express middleware for json parsing and cookie parsing
 app.use(express.json());
+app.use(cookieParser());
 
 const authRouter = require("./routes/auth");
 const goalRouter = require("./routes/goal");
