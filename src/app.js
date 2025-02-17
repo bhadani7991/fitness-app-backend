@@ -1,9 +1,18 @@
 const express = require("express");
 const app = express();
-const connectDB = require("./src/config/database");
-const logger = require("./src/config/logger");
+const connectDB = require("./config/database");
+const logger = require("./config/logger");
+require("dotenv").config(); // Load environment variables from .env
 
 app.use(express.json());
+
+const authRouter = require("./routes/auth");
+const goalRouter = require("./routes/goal");
+const workoutRouter = require("./routes/workout");
+
+app.use("/", authRouter);
+app.use("/", goalRouter);
+app.use("/", workoutRouter);
 
 /**
  * connecting the database and creating a server with listening port
