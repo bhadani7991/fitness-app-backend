@@ -2,7 +2,7 @@ const express = require("express");
 const logger = require("../config/logger");
 const { isSaveAllowed, validateSignupData } = require("../utils/validation");
 const bcrypt = require("bcrypt");
-const { saltRound } = require("../constants/constant");
+const { saltRound } = require("../constants/appConstant");
 const User = require("../model/User");
 
 const router = express.Router();
