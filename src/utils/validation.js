@@ -36,8 +36,33 @@ const validateEditWorkoutData = (req) => {
   return isUpdateAllowed;
 };
 
+const isGoalDetailsAllowed = (req) => {
+  const goalDetailOption = [
+    "workoutsPerWeek",
+    "targetWeight",
+    "caloriesBurnedGoal",
+  ];
+  const isGoalDetailsAllowed = Object.keys(req.body).every((goal) =>
+    goalDetailOption.includes(goal)
+  );
+  return isGoalDetailsAllowed;
+};
+
+const isGoalDetailsValid = (req) => {
+  const { targetWeight, workoutsPerWeek, caloriesBurnedGoal } = req.body;
+  if (!targetWeight) {
+    throw new Error(`targetWeight : ${targetWeight} is not valid`);
+  } else if (!workoutsPerWeek) {
+    throw new Error(`workoutsPerWeek : ${workoutsPerWeek} is not valid`);
+  } else if (!caloriesBurnedGoal) {
+    throw new Error(`caloriesBurnedGoal : ${caloriesBurnedGoal} is not valid`);
+  }
+};
+
 module.exports = {
   isSaveAllowed,
   validateSignupData,
   validateEditWorkoutData,
+  isGoalDetailsAllowed,
+  isGoalDetailsValid,
 };
