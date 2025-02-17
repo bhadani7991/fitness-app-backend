@@ -6,6 +6,7 @@ const Workout = require("../model/Workout");
 const { chunkSize } = require("../constants/appConstant");
 const { userAuth } = require("../middleware/auth");
 const mongoose = require("mongoose");
+const { validateEditWorkoutData } = require("../utils/validation");
 
 /**
  * Api to save the workouts detail entered by the user.
@@ -67,6 +68,77 @@ router.get("/workouts", userAuth, async (req, res) => {
     res.status(400).json({
       message: `Error occurred while fetching workout details ${error.message}`,
     });
+  }
+});
+
+/**
+ * Api for deleting the workout detail.
+ */
+router.delete("/workout/:id", userAuth, async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(400).json({
+        message: `Please Enter valid ${id}`,
+      });
+    }
+    const workout = await Workout.findByIdAndDelete({ _id: id });
+    logger.error(`${workout} deleted successfully`);
+    res.json({
+      message: `workout deleted successfully`,
+    });
+  } catch (error) {
+    logger.error(`Error while deleting the workout detail ${error.message}`);
+    res.status(400).json({
+      message: `Error while deleting the workout detail ${error.message}`,
+    });
+  }
+});
+
+/**
+ * Api to update the Workout details.
+ */
+router.patch("/workout/:id", userAuth, async (req, res) => {
+  try {
+    //data santization
+    const isUpdateAllowed = validateEditWorkoutData(req);
+    if (!isUpdateAllowed) {
+      throw new Error("Invalid Edit Request");
+    }
+    const loggedInUser = req.user;
+
+    const workoutData = req.body;
+
+    // Ensure that the workout exists before updating
+    const workout = await Workout.findById({
+      _id: req.params.id,
+    });
+    if (!workout) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+
+    // Ensure that the logged-in user matches the workout userId
+    if (workout.userId.toString() !== loggedInUser._id.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to edit this workout" });
+    }
+
+    // Update the workout with the passed data
+    Object.keys(workoutData).forEach((key) => {
+      workout[key] = workoutData[key];
+    });
+
+    // Save the updated workout
+    await workout.save();
+
+    // Respond with a success message
+    res.status(200).json({ message: "Workout updated successfully", workout });
+  } catch (error) {
+    logger.error(`Error while updating the workout details ${error.message}`);
+    throw new Error(
+      `Error while updating the workout details ${error.message}`
+    );
   }
 });
 

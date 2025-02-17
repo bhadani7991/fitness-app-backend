@@ -28,7 +28,16 @@ const validateSignupData = (req) => {
   }
 };
 
+const validateEditWorkoutData = (req) => {
+  const workoutEditOptions = ["type", "duration", "caloriesBurned", "date"];
+  const isUpdateAllowed = Object.keys(req.body).every((userField) =>
+    workoutEditOptions.includes(userField)
+  );
+  return isUpdateAllowed;
+};
+
 module.exports = {
   isSaveAllowed,
   validateSignupData,
+  validateEditWorkoutData,
 };
