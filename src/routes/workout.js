@@ -3,10 +3,11 @@ const router = express.Router();
 const loadash = require("lodash");
 const logger = require("../config/logger");
 const Workout = require("../model/Workout");
-const { chunkSize } = require("../constants/appConstant");
+const { chunkSize, noOfWeek } = require("../constants/appConstant");
 const { userAuth } = require("../middleware/auth");
 const mongoose = require("mongoose");
 const { validateEditWorkoutData } = require("../utils/validation");
+const { startOfWeek, endOfWeek } = require("date-fns");
 
 /**
  * Api to save the workouts detail entered by the user.
@@ -139,6 +140,56 @@ router.patch("/workout/:id", userAuth, async (req, res) => {
     throw new Error(
       `Error while updating the workout details ${error.message}`
     );
+  }
+});
+
+/**
+ * Api to fetch workout trends
+ */
+router.get("/workout/trends", userAuth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    //get the previous noOfWeekData data
+    let trends = [];
+    for (let i = 0; i < noOfWeek; i++) {
+      let start = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday start
+      let end = endOfWeek(new Date(), { weekStartsOn: 1 });
+
+      start.setDate(start.getDate() - i * 7); // Move back each week
+      end.setDate(end.getDate() - i * 7);
+
+      // Aggregate workout data for the week
+      const weeklyData = await Workout.aggregate([
+        {
+          $match: {
+            userId: userId,
+            createdAt: { $gte: start, $lte: end },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalCaloriesBurned: { $sum: "$caloriesBurned" },
+            averageDuration: { $avg: "$duration" },
+          },
+        },
+      ]);
+
+      trends.push({
+        week: `${start.toISOString().split("T")[0]} - ${
+          end.toISOString().split("T")[0]
+        }`,
+        totalCaloriesBurned: weeklyData[0]?.totalCaloriesBurned || 0,
+        averageDuration: weeklyData[0]?.averageDuration || 0,
+      });
+    }
+
+    res.json({ trends });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching workout trends", error: error.message });
   }
 });
 
