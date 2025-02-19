@@ -99,7 +99,7 @@ router.delete("/workout/:id", userAuth, async (req, res) => {
 /**
  * Api to update the Workout details.
  */
-router.patch("/workout/:id", userAuth, async (req, res) => {
+router.put("/workout/:id", userAuth, async (req, res) => {
   try {
     //data santization
     const isUpdateAllowed = validateEditWorkoutData(req);
@@ -184,6 +184,11 @@ router.get("/workout/trends", userAuth, async (req, res) => {
         averageDuration: weeklyData[0]?.averageDuration || 0,
       });
     }
+    trends.sort((a, b) => {
+      const dateA = new Date(a.week.split(" - ")[0]); // Extract start date of week
+      const dateB = new Date(b.week.split(" - ")[0]); // Extract start date of week
+      return dateA - dateB; // Compare the dates to sort
+    });
 
     res.json({ trends });
   } catch (error) {
