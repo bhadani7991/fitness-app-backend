@@ -43,6 +43,32 @@ router.post("/goal", userAuth, async (req, res) => {
   }
 });
 
+router.get("/active/goal", userAuth, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const activeGoal = await Goals.findOne({
+      userId: userId,
+    })
+      .sort({
+        updatedAt: -1,
+      })
+      .limit(1);
+    if (!activeGoal) {
+      throw new Error("No Active Goal is Present, please Add ");
+    }
+    logger.info(`Fetched Active goal successfully.`);
+    res.json({
+      message: `Fetched Active Goal Successfully`,
+      entity: activeGoal,
+    });
+  } catch (error) {
+    logger.error(`Error occurred while fetching active goal ${error.message}`);
+    res.status(500).json({
+      message: `Error occurred while fetching active goal ${error.message}`,
+    });
+  }
+});
+
 router.get("/goal/progress", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -86,10 +112,12 @@ router.get("/goal/progress", userAuth, async (req, res) => {
       (caloriesBurned / goal.caloriesBurnedGoal) * 100,
       100
     );
-    const weightProgress = Math.min(
-      ((goal.targetWeight - latestWeight) / goal.targetWeight) * 100,
-      100
-    );
+    if (latestWeight === goal.targetWeight) return 100; // Goal achieved
+
+    const weightProgress =
+      goal.targetWeight > latestWeight
+        ? (latestWeight / goal.targetWeight) * 100 // Weight gain goal
+        : (goal.targetWeight / latestWeight) * 100; // Weight loss goal
 
     // Return progress data
     res.status(200).json({
