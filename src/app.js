@@ -20,10 +20,12 @@ app.use(
 const authRouter = require("./routes/auth");
 const goalRouter = require("./routes/goal");
 const workoutRouter = require("./routes/workout");
+const userRouter = require("./routes/user");
 
 app.use("/", authRouter);
 app.use("/", goalRouter);
 app.use("/", workoutRouter);
+app.use("/", userRouter);
 
 /**
  * connecting the database and creating a server with listening port
