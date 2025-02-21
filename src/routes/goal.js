@@ -3,7 +3,7 @@ const { userAuth } = require("../middleware/auth");
 const logger = require("../config/logger");
 const Goals = require("../model/Goal");
 const Workout = require("../model/Workout");
-const { startOfWeek } = require("date-fns");
+const { startOfWeek, endOfWeek, parse } = require("date-fns");
 const {
   isGoalDetailsAllowed,
   isGoalDetailsValid,
@@ -81,14 +81,27 @@ router.get("/goal/progress", userAuth, async (req, res) => {
         .status(404)
         .json({ message: "No fitness goals found, please set Goal" });
     }
-    const today = new Date();
-    const startOfThisWeek = startOfWeek(today, { weekStartsOn: 1 });
+    const startOfTheWeek = req.query.weekStart;
+    const weekEnd = req.query?.weekEnd;
+
+    // Parse the dates using the 'DD-MM-YYYY' format
+    const parsedStartOfWeek = parse(startOfTheWeek, "dd-MM-yyyy", new Date());
+    const parsedEndOfWeek = parse(weekEnd, "dd-MM-yyyy", new Date());
+
+    const startOfThisWeek = startOfWeek(parsedStartOfWeek, {
+      weekStartsOn: 1,
+    });
+    const endOfThisWeek = endOfWeek(parsedEndOfWeek, {
+      weekStartsOn: 1,
+    });
 
     // Fetch workouts from this week
     const workouts = await Workout.find({
       userId,
-      createdAt: { $gte: startOfThisWeek },
+      updatedAt: { $gte: startOfThisWeek, $lte: endOfThisWeek },
     });
+
+    console.log(workouts);
 
     // Calculate progress
     const workoutsCompleted = workouts.length;

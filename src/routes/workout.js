@@ -124,14 +124,13 @@ router.put("/workout/:id", userAuth, async (req, res) => {
         .status(403)
         .json({ message: "You are not authorized to edit this workout" });
     }
-
     // Update the workout with the passed data
-    Object.keys(workoutData).forEach((key) => {
-      workout[key] = workoutData[key];
-    });
-
+    const updatedWorkout = req.body;
     // Save the updated workout
-    await workout.save();
+    await Workout.findByIdAndUpdate(workout._id, updatedWorkout, {
+      new: true,
+      timestamps: !updatedWorkout.updatedAt,
+    });
 
     // Respond with a success message
     res.status(200).json({ message: "Workout updated successfully", workout });
