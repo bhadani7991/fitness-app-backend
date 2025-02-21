@@ -73,14 +73,6 @@ router.get("/goal/progress", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
 
-    // Fetch latest goal
-    const goal = await Goals.findOne({ userId }).sort({ createdAt: -1 });
-
-    if (!goal) {
-      return res
-        .status(404)
-        .json({ message: "No fitness goals found, please set Goal" });
-    }
     const startOfTheWeek = req.query.weekStart;
     const weekEnd = req.query?.weekEnd;
 
@@ -94,6 +86,18 @@ router.get("/goal/progress", userAuth, async (req, res) => {
     const endOfThisWeek = endOfWeek(parsedEndOfWeek, {
       weekStartsOn: 1,
     });
+
+    // Fetch latest goal
+    const goal = await Goals.findOne({
+      userId: req.user._id,
+      updatedAt: { $gte: startOfThisWeek, $lte: endOfThisWeek },
+    }).sort({ updatedAt: -1 });
+
+    if (!goal) {
+      return res
+        .status(404)
+        .json({ message: "No fitness goals found, please set Goal" });
+    }
 
     // Fetch workouts from this week
     const workouts = await Workout.find({
