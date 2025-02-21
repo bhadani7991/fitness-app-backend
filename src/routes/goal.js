@@ -105,8 +105,6 @@ router.get("/goal/progress", userAuth, async (req, res) => {
       updatedAt: { $gte: startOfThisWeek, $lte: endOfThisWeek },
     });
 
-    console.log(workouts);
-
     // Calculate progress
     const workoutsCompleted = workouts.length;
     const caloriesBurned = workouts.reduce(
