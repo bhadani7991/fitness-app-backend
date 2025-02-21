@@ -8,6 +8,7 @@ const { userAuth } = require("../middleware/auth");
 const mongoose = require("mongoose");
 const { validateEditWorkoutData } = require("../utils/validation");
 const { startOfWeek, endOfWeek } = require("date-fns");
+const sendEmail = require("../config/emailConfig");
 
 /**
  * Api to save the workouts detail entered by the user.
@@ -58,6 +59,8 @@ router.get("/workouts", userAuth, async (req, res) => {
         updatedAt: -1,
       });
     logger.info("Workout details fetched successfully");
+
+    await sendEmail.run();
     res.json({
       message: `Workout details fetched successfully`,
       entity: data,
