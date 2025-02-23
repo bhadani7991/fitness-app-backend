@@ -42,7 +42,9 @@ router.post("/goal", userAuth, async (req, res) => {
     });
   }
 });
-
+/**
+ * To fetch the current week active goal
+ */
 router.get("/active/goal", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
@@ -69,6 +71,9 @@ router.get("/active/goal", userAuth, async (req, res) => {
   }
 });
 
+/**
+ * Api to fetch goal progress.
+ */
 router.get("/goal/progress", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;

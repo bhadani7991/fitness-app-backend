@@ -60,7 +60,6 @@ router.get("/workouts", userAuth, async (req, res) => {
       });
     logger.info("Workout details fetched successfully");
 
-    await sendEmail.run();
     res.json({
       message: `Workout details fetched successfully`,
       entity: data,
@@ -189,7 +188,7 @@ router.get("/workout/trends", userAuth, async (req, res) => {
     trends.sort((a, b) => {
       const dateA = new Date(a.week.split(" - ")[0]); // Extract start date of week
       const dateB = new Date(b.week.split(" - ")[0]); // Extract start date of week
-      return dateA - dateB; // Compare the dates to sort
+      return dateA - dateB;
     });
 
     res.json({ trends });

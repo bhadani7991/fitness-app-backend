@@ -7,15 +7,15 @@ const cors = require("cors");
 require("dotenv").config(); // Load environment variables from .env
 
 // express middleware for json parsing and cookie parsing
-app.use(express.json());
-app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true,
-    methods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+app.use(express.json());
+app.use(cookieParser());
 
 const authRouter = require("./routes/auth");
 const goalRouter = require("./routes/goal");

@@ -1,5 +1,6 @@
 const { SendEmailCommand } = require("@aws-sdk/client-ses");
 const { sesClient } = require("./sesClient");
+const { fromEamilID } = require("../constants/appConstant");
 
 const createSendEmailCommand = (toAddress, fromAddress, body) => {
   return new SendEmailCommand({
@@ -39,11 +40,7 @@ const createSendEmailCommand = (toAddress, fromAddress, body) => {
 };
 
 const run = async (toAddress, body) => {
-  const SendEmailCommand = createSendEmailCommand(
-    toAddress,
-    "awsbhadani1997@gmail.com",
-    body
-  );
+  const SendEmailCommand = createSendEmailCommand(toAddress, fromEamilID, body);
   try {
     return await sesClient.send(SendEmailCommand);
   } catch (error) {
