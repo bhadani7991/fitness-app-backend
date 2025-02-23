@@ -5,6 +5,7 @@ const logger = require("./config/logger");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config(); // Load environment variables from .env
+require("./processor/goalNotificationProcessor");
 
 // express middleware for json parsing and cookie parsing
 app.use(

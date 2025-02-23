@@ -8,31 +8,41 @@ const { endOfWeek } = require("date-fns/endOfWeek");
 const Workout = require("../model/Workout");
 const sendEmail = require("../config/emailConfig");
 
-cron.schedule("0 8 * * *", checkGoalsAndNotify);
+cron.schedule("23 8 * * *", checkGoalsAndNotify);
 // Function to check goals and send notifications
 async function checkGoalsAndNotify() {
   try {
     //Get All Users
     const users = await User.find();
-
+    logger.info(`Fetched User Details Successfully ${users}`);
     for (const user of users) {
       const today = new Date();
       const startWeekDate = startOfWeek(today, { weekStartsOn: 0 });
       const endOfWeekDate = endOfWeek(today, { weekStartsOn: 0 });
-      const goal = fetchCurrentActiveGoalForUser(
+      const goal = await fetchCurrentActiveGoalForUser(
         user,
         startWeekDate,
         endOfWeekDate
       );
-      const workouts = fetchWorkoutsForCurrentWeek(
-        user,
-        startWeekDate,
-        endOfWeekDate
-      );
+      logger.info("Successfully fetched goal for the user");
+      if (!goal) {
+        return;
+      }
+      const workouts =
+        (await fetchWorkoutsForCurrentWeek(
+          user,
+          startWeekDate,
+          endOfWeekDate
+        )) ?? [];
+      if (!workouts) {
+        return;
+      }
+      logger.info(workouts);
+      logger.info("Successfully fetched workouts details");
 
       // Calculate progress
       const workoutsCompleted = workouts.length;
-      const caloriesBurned = workouts.reduce(
+      const caloriesBurned = workouts?.reduce(
         (sum, workout) => sum + workout.caloriesBurned,
         0
       );
@@ -68,6 +78,7 @@ async function checkGoalsAndNotify() {
           user.email,
           `${user.name} : Congratulations! You've achieved your goal`
         );
+        logger.info("Successfully sent email to the User");
       } else if (
         workoutProgress >= 90 ||
         caloriesProgress >= 90 ||
@@ -80,7 +91,7 @@ async function checkGoalsAndNotify() {
       }
     }
   } catch (error) {
-    console.error("Error checking goals and sending notifications:", error);
+    logger.error("Error checking goals and sending notifications:", error);
   }
 }
 
@@ -97,16 +108,16 @@ const fetchCurrentActiveGoalForUser = async (
     }).sort({ updatedAt: -1 });
 
     if (!goal) {
-      throw new Error(
+      logger.error(
         `No fitness goals found for user ${user._id}, please set Goal`
       );
+      return;
     }
     return goal;
   } catch (error) {
     logger.error(
       `Error while fetching current ActiveGoal For User ${error.message}`
     );
-    throw new Error("Error sending Email " + error.message);
   }
 };
 
@@ -122,7 +133,8 @@ const fetchWorkoutsForCurrentWeek = async (
       updatedAt: { $gte: startWeekDate, $lte: endOfWeekDate },
     });
     if (workouts.length == 0 || !workouts) {
-      throw new Error("No Workout find for current week " + error.message);
+      logger.error("No Workout find for current week ");
+      return;
     }
 
     return workouts;
@@ -130,6 +142,5 @@ const fetchWorkoutsForCurrentWeek = async (
     logger.error(
       `Error while fetching Workouts For the Current Week ${error.message}`
     );
-    throw new Error(`Error while sending notification: ${error.message}`);
   }
 };

@@ -1,6 +1,7 @@
 const { SendEmailCommand } = require("@aws-sdk/client-ses");
 const { sesClient } = require("./sesClient");
 const { fromEamilID } = require("../constants/appConstant");
+const logger = require("./logger");
 
 const createSendEmailCommand = (toAddress, fromAddress, body) => {
   return new SendEmailCommand({
@@ -49,7 +50,7 @@ const run = async (toAddress, body) => {
       const messageRejectedError = error;
       return messageRejectedError;
     }
-    throw error;
+    logger.error(error);
   }
 };
 module.exports = { run };
