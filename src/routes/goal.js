@@ -86,10 +86,10 @@ router.get("/goal/progress", userAuth, async (req, res) => {
     const parsedEndOfWeek = parse(weekEnd, "dd-MM-yyyy", new Date());
 
     const startOfThisWeek = startOfWeek(parsedStartOfWeek, {
-      weekStartsOn: 1,
+      weekStartsOn: 0,
     });
     const endOfThisWeek = endOfWeek(parsedEndOfWeek, {
-      weekStartsOn: 1,
+      weekStartsOn: 0,
     });
 
     // Fetch latest goal

@@ -154,8 +154,8 @@ router.get("/workout/trends", userAuth, async (req, res) => {
     //get the previous noOfWeekData data
     let trends = [];
     for (let i = 0; i < noOfWeek; i++) {
-      let start = startOfWeek(new Date(), { weekStartsOn: 1 }); // Monday start
-      let end = endOfWeek(new Date(), { weekStartsOn: 1 });
+      let start = startOfWeek(new Date(), { weekStartsOn: 0 }); // Monday start
+      let end = endOfWeek(new Date(), { weekStartsOn: 0 });
 
       start.setDate(start.getDate() - i * 7); // Move back each week
       end.setDate(end.getDate() - i * 7);
@@ -165,7 +165,7 @@ router.get("/workout/trends", userAuth, async (req, res) => {
         {
           $match: {
             userId: userId,
-            createdAt: { $gte: start, $lte: end },
+            updatedAt: { $gte: start, $lte: end },
           },
         },
         {
