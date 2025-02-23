@@ -8,7 +8,7 @@ const { endOfWeek } = require("date-fns/endOfWeek");
 const Workout = require("../model/Workout");
 const sendEmail = require("../config/emailConfig");
 
-cron.schedule("23 8 * * *", checkGoalsAndNotify);
+cron.schedule("0 8 * * *", checkGoalsAndNotify);
 // Function to check goals and send notifications
 async function checkGoalsAndNotify() {
   try {
