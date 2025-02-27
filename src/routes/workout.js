@@ -129,13 +129,19 @@ router.put("/workout/:id", userAuth, async (req, res) => {
     // Update the workout with the passed data
     const updatedWorkout = req.body;
     // Save the updated workout
-    await Workout.findByIdAndUpdate(workout._id, updatedWorkout, {
-      new: true,
-      timestamps: !updatedWorkout.updatedAt,
-    });
+    const updatedData = await Workout.findByIdAndUpdate(
+      workout._id,
+      updatedWorkout,
+      {
+        new: true,
+        timestamps: !updatedWorkout.updatedAt,
+      }
+    );
 
     // Respond with a success message
-    res.status(200).json({ message: "Workout updated successfully", workout });
+    res
+      .status(200)
+      .json({ message: "Workout updated successfully", updatedData });
   } catch (error) {
     logger.error(`Error while updating the workout details ${error.message}`);
     throw new Error(

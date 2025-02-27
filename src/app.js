@@ -10,7 +10,7 @@ require("./processor/goalNotificationProcessor");
 // express middleware for json parsing and cookie parsing
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: ["http://localhost:4200", "http://localhost:3000"],
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   })
