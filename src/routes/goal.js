@@ -48,8 +48,12 @@ router.post("/goal", userAuth, async (req, res) => {
 router.get("/active/goal", userAuth, async (req, res) => {
   try {
     const userId = req.user._id;
+    const today = new Date();
+    const startWeekDate = startOfWeek(today, { weekStartsOn: 0 });
+    const endOfWeekDate = endOfWeek(today, { weekStartsOn: 0 });
     const activeGoal = await Goals.findOne({
       userId: userId,
+      updatedAt: { $gte: startWeekDate, $lte: endOfWeekDate },
     })
       .sort({
         updatedAt: -1,
